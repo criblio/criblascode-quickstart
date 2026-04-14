@@ -18,11 +18,15 @@ CRIBL_ORGANIZATION_ID = os.getenv("CRIBL_ORGANIZATION_ID")
 
 # Optional configuration with defaults
 CRIBL_WORKSPACE = os.getenv("CRIBL_WORKSPACE", "main")
-CRIBL_DOMAIN = os.getenv("CRIBL_DOMAIN", "cribl.cloud")  # Use "cribl-staging.cloud" for staging
+CRIBL_DOMAIN = os.getenv(
+    "CRIBL_DOMAIN", "cribl.cloud"
+)  # Use "cribl-staging.cloud" for staging
 
 # Construct the base URL for Cribl Cloud API
 # Format: https://{workspace}-{orgId}.{domain}/api/v1
-CRIBL_BASE_URL = f"https://{CRIBL_WORKSPACE}-{CRIBL_ORGANIZATION_ID}.{CRIBL_DOMAIN}/api/v1"
+CRIBL_BASE_URL = (
+    f"https://{CRIBL_WORKSPACE}-{CRIBL_ORGANIZATION_ID}.{CRIBL_DOMAIN}/api/v1"
+)
 
 # Auth URLs - different for staging vs production
 if "staging" in CRIBL_DOMAIN:

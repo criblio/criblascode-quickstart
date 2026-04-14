@@ -26,7 +26,12 @@ Environment Variables:
 import os
 import sys
 
-from config import validate_config, CRIBL_ORGANIZATION_ID, CRIBL_WORKSPACE, CRIBL_BASE_URL
+from config import (
+    validate_config,
+    CRIBL_ORGANIZATION_ID,
+    CRIBL_WORKSPACE,
+    CRIBL_BASE_URL,
+)
 from worker_groups import create_worker_group
 from packs import install_pack
 
@@ -35,15 +40,13 @@ from packs import install_pack
 WORKER_GROUP_ID = os.getenv("WORKER_GROUP_ID", "quickstart-wg")
 WORKER_GROUP_NAME = os.getenv("WORKER_GROUP_NAME", "Quickstart Worker Group")
 WORKER_GROUP_DESCRIPTION = os.getenv(
-    "WORKER_GROUP_DESCRIPTION",
-    "Worker group created via Python SDK quickstart"
+    "WORKER_GROUP_DESCRIPTION", "Worker group created via Python SDK quickstart"
 )
 
 # Pack configuration (defaults to AWS VPC Flow Logs)
 PACK_ID = os.getenv("PACK_ID", "cribl-aws-vpcflow-logs")
 PACK_SOURCE = os.getenv(
-    "PACK_SOURCE",
-    "git+https://github.com/criblpacks/cribl-aws-vpcflow-logs.git"
+    "PACK_SOURCE", "git+https://github.com/criblpacks/cribl-aws-vpcflow-logs.git"
 )
 
 
@@ -60,7 +63,7 @@ def main():
         print(f"\nConfiguration error: {e}")
         sys.exit(1)
 
-    print(f"\nConnecting to Cribl Cloud...")
+    print("\nConnecting to Cribl Cloud...")
     print(f"  Organization: {CRIBL_ORGANIZATION_ID}")
     print(f"  Workspace: {CRIBL_WORKSPACE}")
     print(f"  API URL: {CRIBL_BASE_URL}")
@@ -73,7 +76,7 @@ def main():
             name=WORKER_GROUP_NAME,
             description=WORKER_GROUP_DESCRIPTION,
         )
-        print(f"Worker group created successfully!")
+        print("Worker group created successfully!")
         print(f"  ID: {WORKER_GROUP_ID}")
         print(f"  Name: {WORKER_GROUP_NAME}")
     except Exception as e:
@@ -88,7 +91,7 @@ def main():
             source=PACK_SOURCE,
             pack_id=PACK_ID,
         )
-        print(f"Pack installed successfully!")
+        print("Pack installed successfully!")
         print(f"  Pack ID: {PACK_ID}")
         print(f"  Source: {PACK_SOURCE}")
     except Exception as e:
@@ -99,10 +102,10 @@ def main():
     print("\n" + "=" * 60)
     print("SUCCESS!")
     print("=" * 60)
-    print(f"\nYour new worker group is ready:")
+    print("\nYour new worker group is ready:")
     print(f"  - Worker Group: {WORKER_GROUP_NAME} ({WORKER_GROUP_ID})")
     print(f"  - Pack Installed: {PACK_ID}")
-    print(f"\nNext steps:")
+    print("\nNext steps:")
     print("  1. Log into Cribl Cloud to view your new worker group")
     print("  2. Configure the pack's sources and destinations")
     print("  3. Deploy workers to the group")
