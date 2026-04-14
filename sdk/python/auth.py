@@ -13,20 +13,28 @@ from config import (
     CRIBL_BASE_URL,
     CRIBL_TOKEN_URL,
     CRIBL_AUDIENCE,
+    validate_config,
 )
 
 
-def get_client():
+def get_client() -> CriblControlPlane:
     """
     Create an authenticated Cribl Control Plane client.
 
     Returns:
         CriblControlPlane: Authenticated client for API operations
 
+    Raises:
+        ValueError: If required credentials are not configured
+
     Example:
         with get_client() as client:
             groups = client.groups.list()
     """
+    validate_config()
+    assert CRIBL_CLIENT_ID is not None
+    assert CRIBL_CLIENT_SECRET is not None
+
     return CriblControlPlane(
         server_url=CRIBL_BASE_URL,
         security=Security(
@@ -40,7 +48,7 @@ def get_client():
     )
 
 
-def get_group_client(group_id: str):
+def get_group_client(group_id: str) -> CriblControlPlane:
     """
     Create an authenticated client scoped to a specific worker group.
 
@@ -53,10 +61,17 @@ def get_group_client(group_id: str):
     Returns:
         CriblControlPlane: Authenticated client for group-specific operations
 
+    Raises:
+        ValueError: If required credentials are not configured
+
     Example:
         with get_group_client("my-worker-group") as client:
             client.packs.install(...)
     """
+    validate_config()
+    assert CRIBL_CLIENT_ID is not None
+    assert CRIBL_CLIENT_SECRET is not None
+
     group_url = f"{CRIBL_BASE_URL}/m/{group_id}"
     return CriblControlPlane(
         server_url=group_url,

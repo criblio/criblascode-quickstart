@@ -4,6 +4,8 @@ Pack operations for Cribl Cloud.
 Provides functions to install, list, and manage packs in worker groups.
 """
 
+from typing import Optional
+
 from cribl_control_plane.models import PackRequestBody2
 
 from auth import get_group_client
@@ -12,7 +14,7 @@ from auth import get_group_client
 def install_pack(
     group_id: str,
     source: str,
-    pack_id: str = None,
+    pack_id: Optional[str] = None,
 ):
     """
     Install a pack into a worker group.
@@ -38,7 +40,8 @@ def install_pack(
         # Install from Pack Dispensary
         install_pack(
             group_id="my-wg",
-            source="https://packs.cribl.io/dl/cribl-aws-bedrock-io/2.0.0/cribl-aws-bedrock-io-2.0.0.crbl"
+            source="https://packs.cribl.io/dl/cribl-aws-bedrock-io/2.0.0/"
+                   "cribl-aws-bedrock-io-2.0.0.crbl"
         )
     """
     with get_group_client(group_id) as client:
