@@ -15,16 +15,22 @@ variable "cribl_cloud_org" {
   type        = string
 }
 
+variable "workspace_id" {
+  description = "Cribl Cloud Workspace ID"
+  type        = string
+  default     = "main"
+}
+
 variable "worker_group_name" {
   description = "Display name for the worker group"
   type        = string
-  default     = "quickstart-worker-group"
+  default     = "datacenter-emea"
 }
 
 variable "worker_group_id" {
   description = "Unique identifier for the worker group (no spaces, lowercase)"
   type        = string
-  default     = "quickstart-wg"
+  default     = "datacenter-emea"
 }
 
 variable "worker_group_description" {
@@ -36,11 +42,11 @@ variable "worker_group_description" {
 variable "pack_source" {
   description = "Pack source URL from Pack Dispensary"
   type        = string
-  default     = "git+https://github.com/criblpacks/cribl-palo-alto-networks.git"
+  default     = "git+https://github.com/criblpacks/cribl-syslog-input.git"
 }
 
 variable "pack_id" {
   description = "Pack identifier (name)"
   type        = string
-  default     = "cribl-palo-alto-networks"
+  default     = "cribl-syslog-input"
 }

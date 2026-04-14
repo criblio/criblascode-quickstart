@@ -1,6 +1,6 @@
 # Cribl as Code - Terraform
 
-Deploy a Cribl Cloud worker group with the AWS VPC Flow Logs pack using Terraform.
+Deploy and manage Cribl Cloud worker groups and packs using Terraform. This approach gives you infrastructure-as-code benefits: version control, code review, and repeatable deployments.
 
 ## Prerequisites
 
@@ -24,6 +24,8 @@ terraform plan
 terraform apply
 ```
 
+After `apply` completes, the configuration is automatically committed and deployed to your worker group.
+
 ## Files
 
 | File | Purpose |
@@ -31,8 +33,10 @@ terraform apply
 | `provider.tf` | Cribl provider configuration |
 | `variables.tf` | Input variable definitions |
 | `main.tf` | Worker group and pack resources |
+| `commit_deploy.tf` | Commit and deploy workflow |
 | `outputs.tf` | Output values after apply |
 | `terraform.tfvars.example` | Example variable values |
+| `examples/` | Standalone example configurations |
 
 ## Variables
 
@@ -48,6 +52,7 @@ terraform apply
 
 | Variable | Description | Default |
 |----------|-------------|---------|
+| `workspace_id` | Cribl Cloud Workspace ID | `main` |
 | `worker_group_id` | Worker group identifier | `quickstart-wg` |
 | `worker_group_name` | Worker group display name | `quickstart-worker-group` |
 | `worker_group_description` | Worker group description | `Worker group created via Terraform quickstart` |
@@ -82,6 +87,44 @@ export CRIBL_CLIENT_SECRET="your-client-secret"
 export CRIBL_ORGANIZATION_ID="your-org-id"
 ```
 
+## Commit and Deploy Workflow
+
+Cribl requires configuration changes to be committed and deployed before they take effect on workers. The `commit_deploy.tf` file handles this automatically:
+
+1. **Commit** - Saves all configuration changes with a commit message
+2. **Get Version** - Retrieves the latest config version after commit
+3. **Deploy** - Pushes the committed configuration to workers
+
+```hcl
+# Step 1: Commit configuration changes
+resource "criblio_commit" "stream_commit" {
+  effective = true
+  group     = var.worker_group_id
+  message   = "Deploy Stream configuration via Terraform"
+}
+
+# Step 2: Get the latest config version
+data "criblio_config_version" "stream_config_version" {
+  id         = var.worker_group_id
+  depends_on = [criblio_commit.stream_commit]
+}
+
+# Step 3: Deploy the configuration
+resource "criblio_deploy" "stream_deploy" {
+  id      = var.worker_group_id
+  version = data.criblio_config_version.stream_config_version.items[...]
+}
+```
+
+When you add new resources (packs, pipelines, etc.), add them to the `depends_on` list in the commit resource to ensure proper ordering.
+
+## Examples
+
+| Example | Description |
+|---------|-------------|
+| [create-wg-with-pack](examples/create-wg-with-pack/) | Create a new worker group and install a pack |
+| [install-packs](examples/install-packs/) | Install packs into an existing worker group |
+
 ## State Management
 
 By default, Terraform state is stored locally. For team environments, configure a remote backend:
@@ -108,6 +151,8 @@ resource "criblio_pack" "another_pack" {
 }
 ```
 
+Don't forget to add the new pack to the `depends_on` list in `criblio_commit.stream_commit`.
+
 ### Add Multiple Worker Groups
 
 ```hcl
@@ -127,6 +172,18 @@ resource "criblio_group" "groups" {
 }
 ```
 
+### Install Pack from Pack Dispensary
+
+Packs can be installed from the [Pack Dispensary](https://packs.cribl.io) using `.crbl` URLs:
+
+```hcl
+resource "criblio_pack" "bedrock" {
+  id       = "cribl-bedrock-io"
+  group_id = var.worker_group_name
+  source   = "https://packs.cribl.io/dl/cribl-aws-bedrock-io/2.0.0/cribl-aws-bedrock-io-2.0.0.crbl"
+}
+```
+
 ## Cleanup
 
 To destroy all resources:
@@ -139,4 +196,5 @@ terraform destroy
 
 - [Cribl Terraform Provider](https://github.com/criblio/terraform-provider-criblio)
 - [Terraform Registry - Cribl Provider](https://registry.terraform.io/providers/criblio/criblio/latest)
+- [Pack Dispensary](https://packs.cribl.io)
 - [Cribl Documentation](https://docs.cribl.io)
