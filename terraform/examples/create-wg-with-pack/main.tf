@@ -10,12 +10,12 @@
 
 # Create a worker group
 resource "criblio_group" "example" {
-  id          = var.worker_group_id
-  name        = var.worker_group_name
-  description = "Worker group created from standalone example"
-  product     = "stream"
-  provisioned = true
-  on_prem = false
+  id                    = var.worker_group_id
+  name                  = var.worker_group_name
+  description           = "Worker group created from standalone example"
+  product               = "stream"
+  provisioned           = true
+  on_prem               = false
   estimated_ingest_rate = 1024
   # values allowed [1024,2048,3072,4096,5120,7168,10240,13312,15360]
   cloud = {
