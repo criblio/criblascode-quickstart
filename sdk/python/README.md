@@ -157,14 +157,37 @@ Creates authenticated API clients.
 
 ### worker_groups.py
 
-Worker group CRUD operations.
+Worker group CRUD operations with support for on-prem and cloud worker groups.
 
 | Function | Description |
 |----------|-------------|
-| `create_worker_group(group_id, name, description)` | Create a new worker group |
+| `create_worker_group(...)` | Create a worker group (on-prem or cloud) |
+| `create_onprem_worker_group(group_id, name)` | Create an on-prem worker group |
+| `create_cloud_worker_group(group_id, name, provider, region)` | Create a cloud worker group |
 | `list_worker_groups()` | List all worker groups |
 | `get_worker_group(group_id)` | Get a specific worker group |
 | `delete_worker_group(group_id)` | Delete a worker group |
+
+**On-prem vs Cloud Worker Groups:**
+
+```python
+from worker_groups import create_onprem_worker_group, create_cloud_worker_group
+
+# On-prem: You manage the workers
+create_onprem_worker_group(
+    group_id="datacenter-wg",
+    name="Datacenter Workers"
+)
+
+# Cloud: Cribl manages the workers
+create_cloud_worker_group(
+    group_id="aws-prod",
+    name="AWS Production",
+    cloud_provider="aws",      # "aws" or "azure"
+    cloud_region="us-east-1",
+    ingest_rate_mb=24          # 12, 24, 36, 48, 60, 84, 120, 156, 180
+)
+```
 
 ### packs.py
 
