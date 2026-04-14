@@ -193,9 +193,12 @@ def create_cloud_worker_group(
     )
 
 
-def list_worker_groups():
+def list_worker_groups(product: str = "stream"):
     """
     List all worker groups in the organization.
+
+    Args:
+        product: Product type ("stream" or "edge"). Defaults to "stream".
 
     Returns:
         List of worker group objects
@@ -205,17 +208,19 @@ def list_worker_groups():
         for group in groups.items:
             print(group.id, group.name)
     """
+    product_enum = ProductsCore.STREAM if product == "stream" else ProductsCore.EDGE
     with get_client() as client:
-        result = client.groups.list()
+        result = client.groups.list(product=product_enum)
     return result
 
 
-def get_worker_group(group_id: str):
+def get_worker_group(group_id: str, product: str = "stream"):
     """
     Get a specific worker group by ID.
 
     Args:
         group_id: The ID of the worker group
+        product: Product type ("stream" or "edge"). Defaults to "stream".
 
     Returns:
         The worker group object
@@ -224,17 +229,19 @@ def get_worker_group(group_id: str):
         group = get_worker_group("my-wg")
         print(group.name)
     """
+    product_enum = ProductsCore.STREAM if product == "stream" else ProductsCore.EDGE
     with get_client() as client:
-        result = client.groups.get(id=group_id)
+        result = client.groups.get(product=product_enum, id=group_id)
     return result
 
 
-def delete_worker_group(group_id: str):
+def delete_worker_group(group_id: str, product: str = "stream"):
     """
     Delete a worker group.
 
     Args:
         group_id: The ID of the worker group to delete
+        product: Product type ("stream" or "edge"). Defaults to "stream".
 
     Returns:
         Deletion result
@@ -242,6 +249,7 @@ def delete_worker_group(group_id: str):
     Example:
         delete_worker_group("my-wg")
     """
+    product_enum = ProductsCore.STREAM if product == "stream" else ProductsCore.EDGE
     with get_client() as client:
-        result = client.groups.delete(id=group_id)
+        result = client.groups.delete(product=product_enum, id=group_id)
     return result
