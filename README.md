@@ -173,6 +173,42 @@ After you've deployed your Worker Group with the quickstart:
 - Check that you have deploy permissions for the target group
 - Verify there are no conflicting pending changes in the UI
 
+## Security
+
+This repo includes automated security scanning to protect against accidental credential exposure:
+
+- **TruffleHog** - Scans for secrets and credentials
+- **Semgrep** - Static analysis for security vulnerabilities
+- **tfsec** - Terraform-specific security scanning
+
+### Running Security Scans Locally
+
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install hooks
+pre-commit install
+
+# Run all checks manually
+pre-commit run --all-files
+```
+
+### Important Security Notes
+
+- Never commit `.env`, `terraform.tfvars`, or files containing credentials
+- Use environment variables or gitignored files for secrets
+- Rotate credentials if accidentally exposed
+
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please ensure your changes pass security scans:
+
+```bash
+# Install pre-commit hooks (runs security checks before each commit)
+pip install pre-commit
+pre-commit install
+
+# Run checks manually
+pre-commit run --all-files
+```

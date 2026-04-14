@@ -1,0 +1,55 @@
+repos:
+  # Secret detection
+  - repo: https://github.com/trufflesecurity/trufflehog
+    rev: v3.63.0
+    hooks:
+      - id: trufflehog
+        name: TruffleHog Secret Scan
+        entry: trufflehog git file://. --only-verified --fail
+        language: system
+        pass_filenames: false
+
+  # Semgrep for security and code quality
+  - repo: https://github.com/semgrep/semgrep
+    rev: v1.52.0
+    hooks:
+      - id: semgrep
+        name: Semgrep Security Scan
+        args:
+          - --config=p/secrets
+          - --config=p/security-audit
+          - --error
+
+  # Python formatting and linting
+  - repo: https://github.com/psf/black
+    rev: 24.2.0
+    hooks:
+      - id: black
+        name: Python Format (Black)
+        files: ^sdk/python/
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        name: Python Lint (Flake8)
+        files: ^sdk/python/
+        args: [--max-line-length=120]
+
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-yaml
+        name: Check YAML
+      - id: check-json
+        name: Check JSON
+      - id: end-of-file-fixer
+        name: Fix End of Files
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+      - id: detect-private-key
+        name: Detect Private Keys
+      - id: check-added-large-files
+        name: Check Large Files
+        args: [--maxkb=1000]
