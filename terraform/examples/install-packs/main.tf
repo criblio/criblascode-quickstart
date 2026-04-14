@@ -13,6 +13,13 @@ resource "criblio_pack" "aws_pan_logs" {
   id       = var.pack_id
   group_id = var.worker_group_name
   source   = var.pack_source
-
+  spec     = "main"
 }
 
+#From The dispensary
+resource "criblio_pack" "bedrock" {
+  id       = "cribl-bedrock-io"
+  group_id = var.worker_group_name
+  source   = "https://packs.cribl.io/dl/cribl-aws-bedrock-io/2.0.0/cribl-aws-bedrock-io-2.0.0.crbl"
+
+}

@@ -1,42 +1,38 @@
 # Cribl as Code - Terraform
 
-Deploy a Cribl Cloud worker group with the AWS VPC Flow Logs pack using Terraform.
+Deploy and manage Cribl Cloud packs and worker groups using Terraform.
+
+## Quick Start
+
+```bash
+cd examples/install-packs
+
+# Configure credentials
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your values
+
+# Initialize and apply
+terraform init
+terraform plan
+terraform apply
+```
+
+## Examples
+
+| Example | Description | Use Case |
+|---------|-------------|----------|
+| [install-packs](examples/install-packs/) | Install packs into existing worker groups | You already have worker groups, want to add packs |
+| [create-wg-with-pack](examples/create-wg-with-pack/) | Create a new worker group and install a pack | Starting fresh, need a new worker group |
 
 ## Prerequisites
 
 - [Terraform](https://www.terraform.io/downloads) >= 1.0
 - Cribl Cloud API credentials (Client ID, Client Secret, Organization ID)
+- For `install-packs`: An existing worker group in Cribl Cloud
 
-## Quick Start
+## Configuration
 
-```bash
-# 1. Configure credentials
-cp terraform.tfvars.example terraform.tfvars
-# Edit terraform.tfvars with your values
-
-# 2. Initialize Terraform
-terraform init
-
-# 3. Review the plan
-terraform plan
-
-# 4. Apply
-terraform apply
-```
-
-## Files
-
-| File | Purpose |
-|------|---------|
-| `provider.tf` | Cribl provider configuration |
-| `variables.tf` | Input variable definitions |
-| `main.tf` | Worker group and pack resources |
-| `outputs.tf` | Output values after apply |
-| `terraform.tfvars.example` | Example variable values |
-
-## Variables
-
-### Required
+### Required Variables
 
 | Variable | Description |
 |----------|-------------|
@@ -44,92 +40,62 @@ terraform apply
 | `cribl_client_secret` | Cribl Cloud API Client Secret |
 | `cribl_cloud_org` | Cribl Cloud Organization ID |
 
-### Optional
+### Optional Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `worker_group_id` | Worker group identifier | `quickstart-wg` |
-| `worker_group_name` | Worker group display name | `quickstart-worker-group` |
-| `worker_group_description` | Worker group description | `Worker group created via Terraform quickstart` |
-| `pack_id` | Pack identifier | `cribl-aws-vpcflow-logs` |
-| `pack_source` | Pack source URL | GitHub URL for AWS VPC Flow Logs |
-
-## Outputs
-
-| Output | Description |
-|--------|-------------|
-| `worker_group_id` | ID of the created worker group |
-| `worker_group_name` | Display name of the worker group |
-| `pack_installed` | Confirmation message for pack installation |
+| `workspace_id` | Cribl Cloud Workspace ID | `main` |
+| `worker_group_name` | Target worker group | `default` |
+| `pack_id` | Pack identifier | `cribl-syslog-input` |
+| `pack_source` | Pack source URL | GitHub URL |
 
 ## Authentication
 
-The provider supports multiple authentication methods. This quickstart uses client credentials:
-
-```hcl
-provider "criblio" {
-  client_id       = var.cribl_client_id
-  client_secret   = var.cribl_client_secret
-  organization_id = var.cribl_cloud_org
-}
-```
-
-You can also use environment variables:
+Use environment variables or `terraform.tfvars`:
 
 ```bash
-export CRIBL_CLIENT_ID="your-client-id"
-export CRIBL_CLIENT_SECRET="your-client-secret"
-export CRIBL_ORGANIZATION_ID="your-org-id"
+# Environment variables
+export TF_VAR_cribl_client_id="your-client-id"
+export TF_VAR_cribl_client_secret="your-client-secret"
+export TF_VAR_cribl_cloud_org="your-org-id"
 ```
 
-## State Management
-
-By default, Terraform state is stored locally. For team environments, configure a remote backend:
+Or create `terraform.tfvars`:
 
 ```hcl
-terraform {
-  backend "s3" {
-    bucket = "your-terraform-state-bucket"
-    key    = "cribl/terraform.tfstate"
-    region = "us-east-1"
-  }
-}
+cribl_client_id     = "your-client-id"
+cribl_client_secret = "your-client-secret"
+cribl_cloud_org     = "your-org-id"
+worker_group_name   = "default"
 ```
 
-## Extending
+## Commit and Deploy
 
-### Add Another Pack
+Both examples include `commit_deploy.tf` which automatically:
 
+1. **Commits** configuration changes to Cribl
+2. **Gets** the latest config version
+3. **Deploys** to the worker group
+
+No manual deployment needed - changes are live after `terraform apply`.
+
+## Pack Sources
+
+Packs can be installed from:
+
+**GitHub:**
 ```hcl
-resource "criblio_pack" "another_pack" {
-  id       = "pack-name"
-  group_id = criblio_group.worker_group.id
-  source   = "https://github.com/criblpacks/pack-repo"
-}
+source = "git+https://github.com/criblpacks/cribl-syslog-input.git"
 ```
 
-### Add Multiple Worker Groups
-
+**Pack Dispensary:**
 ```hcl
-variable "worker_groups" {
-  default = {
-    "dev"  = { name = "Development", description = "Dev environment" }
-    "prod" = { name = "Production", description = "Prod environment" }
-  }
-}
-
-resource "criblio_group" "groups" {
-  for_each    = var.worker_groups
-  id          = each.key
-  name        = each.value.name
-  description = each.value.description
-  product     = "stream"
-}
+source = "https://packs.cribl.io/dl/cribl-aws-bedrock-io/2.0.0/cribl-aws-bedrock-io-2.0.0.crbl"
 ```
+
+Browse packs at [packs.cribl.io](https://packs.cribl.io)
 
 ## Cleanup
-
-To destroy all resources:
 
 ```bash
 terraform destroy
@@ -138,5 +104,5 @@ terraform destroy
 ## Resources
 
 - [Cribl Terraform Provider](https://github.com/criblio/terraform-provider-criblio)
-- [Terraform Registry - Cribl Provider](https://registry.terraform.io/providers/criblio/criblio/latest)
+- [Terraform Registry](https://registry.terraform.io/providers/criblio/criblio/latest)
 - [Cribl Documentation](https://docs.cribl.io)

@@ -1,6 +1,6 @@
 # Cribl as Code - Python SDK
 
-Deploy a Cribl Cloud worker group with the AWS VPC Flow Logs pack using Python.
+Deploy and manage Cribl Cloud worker groups and packs using Python.
 
 ## Prerequisites
 
@@ -10,149 +10,238 @@ Deploy a Cribl Cloud worker group with the AWS VPC Flow Logs pack using Python.
 ## Quick Start
 
 ```bash
-# 1. Install dependencies
+# 1. Create a virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# 2. Configure credentials
+# 3. Configure credentials
 cp .env.example .env
 # Edit .env with your values
 
-# 3. Run the script
-python create_wg_with_pack.py
+# 4. Run the quickstart
+python3 create_wg_with_pack.py
 ```
-
-## Files
-
-| File | Purpose |
-|------|---------|
-| `requirements.txt` | Python dependencies |
-| `.env.example` | Example environment variables |
-| `create_wg_with_pack.py` | Main script |
 
 ## Configuration
 
-### Required Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `CRIBL_CLIENT_ID` | Cribl Cloud API Client ID |
-| `CRIBL_CLIENT_SECRET` | Cribl Cloud API Client Secret |
-| `CRIBL_ORGANIZATION_ID` | Cribl Cloud Organization ID |
-
-### Optional Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `WORKER_GROUP_ID` | Worker group identifier | `quickstart-wg` |
-| `WORKER_GROUP_NAME` | Worker group display name | `Quickstart Worker Group` |
-| `WORKER_GROUP_DESCRIPTION` | Worker group description | `Worker group created via Python SDK quickstart` |
-| `PACK_ID` | Pack identifier | `cribl-aws-vpcflow-logs` |
-| `PACK_SOURCE` | Pack source URL | GitHub URL for AWS VPC Flow Logs |
-
-## Using a .env File
-
-Create a `.env` file in the same directory as the script:
+Edit your `.env` file with your Cribl Cloud credentials:
 
 ```bash
+# Required
 CRIBL_CLIENT_ID=your-client-id
 CRIBL_CLIENT_SECRET=your-client-secret
 CRIBL_ORGANIZATION_ID=your-org-id
+
+# Optional (defaults shown)
+CRIBL_WORKSPACE=main
+CRIBL_DOMAIN=cribl.cloud          # Use "cribl-staging.cloud" for staging
+
+# Worker Group (optional)
+WORKER_GROUP_ID=quickstart-wg
+WORKER_GROUP_NAME=Quickstart Worker Group
+
+# Pack (optional)
+PACK_ID=cribl-aws-vpcflow-logs
+PACK_SOURCE=git+https://github.com/criblpacks/cribl-aws-vpcflow-logs.git
 ```
 
-The script uses `python-dotenv` to automatically load these values.
+### Finding Your Credentials
 
-## Using Environment Variables Directly
+1. Log into [Cribl Cloud](https://cribl.cloud)
+2. Go to **Settings > API Credentials**
+3. Create a new credential and note the Client ID and Secret
+4. Your Organization ID is in the URL: `https://{workspace}-{org-id}.cribl.cloud`
+
+## Project Structure
+
+```
+sdk/python/
+├── config.py              # Configuration & environment variables
+├── auth.py                # Authentication helpers
+├── worker_groups.py       # Worker group operations
+├── packs.py               # Pack operations
+├── create_wg_with_pack.py # Main quickstart script
+├── requirements.txt       # Python dependencies
+└── .env.example           # Example configuration
+```
+
+## Usage
+
+### Run the Quickstart Script
 
 ```bash
-export CRIBL_CLIENT_ID="your-client-id"
-export CRIBL_CLIENT_SECRET="your-client-secret"
-export CRIBL_ORGANIZATION_ID="your-org-id"
+# With defaults from .env
+python3 create_wg_with_pack.py
 
-python create_wg_with_pack.py
+# Override with environment variables
+WORKER_GROUP_ID=my-wg WORKER_GROUP_NAME="My Worker Group" python3 create_wg_with_pack.py
 ```
 
-## Expected Output
+### Use Modules Directly
 
-```
-============================================================
-Cribl as Code Quickstart - Python SDK
-============================================================
-
-Connecting to Cribl Cloud...
-  Organization: your-org-id
-
-Creating worker group 'Quickstart Worker Group'...
-Worker group created successfully!
-  ID: quickstart-wg
-  Name: Quickstart Worker Group
-
-Installing pack 'cribl-aws-vpcflow-logs' into worker group 'quickstart-wg'...
-Pack installed successfully!
-  Pack ID: cribl-aws-vpcflow-logs
-  Source: https://github.com/criblpacks/cribl-aws-vpcflow-logs
-
-============================================================
-SUCCESS!
-============================================================
-
-Your new worker group is ready:
-  - Worker Group: Quickstart Worker Group (quickstart-wg)
-  - Pack Installed: cribl-aws-vpcflow-logs
-
-Next steps:
-  1. Log into Cribl Cloud to view your new worker group
-  2. Configure the pack's sources and destinations
-  3. Deploy workers to the group
-```
-
-## Extending the Script
-
-### Creating Multiple Worker Groups
+Each module can be imported and used independently:
 
 ```python
-groups = [
-    {"id": "dev-wg", "name": "Development"},
-    {"id": "prod-wg", "name": "Production"},
-]
+from worker_groups import create_worker_group, list_worker_groups, delete_worker_group
+from packs import install_pack, list_packs, delete_pack
 
-for group in groups:
-    client.groups.create(
-        request_body={
-            "id": group["id"],
-            "name": group["name"],
-            "product": "stream",
-        }
-    )
+# Create a worker group
+create_worker_group(
+    group_id="production-wg",
+    name="Production Worker Group",
+    description="Handles production data"
+)
+
+# Install a pack from GitHub
+install_pack(
+    group_id="production-wg",
+    source="git+https://github.com/criblpacks/cribl-aws-vpcflow-logs.git",
+    pack_id="cribl-aws-vpcflow-logs"
+)
+
+# Install a pack from Pack Dispensary
+install_pack(
+    group_id="production-wg",
+    source="https://packs.cribl.io/dl/cribl-aws-bedrock-io/2.0.0/cribl-aws-bedrock-io-2.0.0.crbl"
+)
+
+# List all worker groups
+groups = list_worker_groups()
+
+# List packs in a group
+packs = list_packs("production-wg")
+
+# Clean up
+delete_pack("production-wg", "cribl-aws-vpcflow-logs")
+delete_worker_group("production-wg")
 ```
 
-### Installing Multiple Packs
+### Interactive Python Session
+
+```bash
+source venv/bin/activate
+python3
+```
 
 ```python
-packs = [
-    {"id": "pack1", "source": "https://github.com/criblpacks/pack1"},
-    {"id": "pack2", "source": "https://github.com/criblpacks/pack2"},
-]
-
-for pack in packs:
-    client.packs.install(
-        group_id=WORKER_GROUP_ID,
-        request_body={"source": pack["source"]}
-    )
+>>> from worker_groups import list_worker_groups
+>>> groups = list_worker_groups()
+>>> for g in groups.items:
+...     print(g.id, g.name)
 ```
 
-## Error Handling
+## Module Reference
 
-The script includes basic error handling for common scenarios:
+### config.py
 
-- Missing environment variables
-- Worker group creation failures
-- Pack installation failures
+Loads configuration from environment variables and `.env` file.
 
-For production use, consider adding:
+| Variable | Description |
+|----------|-------------|
+| `CRIBL_BASE_URL` | Constructed API URL |
+| `CRIBL_TOKEN_URL` | OAuth token endpoint |
+| `CRIBL_AUDIENCE` | OAuth audience |
+| `validate_config()` | Raises error if required vars missing |
 
-- Retry logic for transient failures
-- Logging to file
-- Validation of worker group/pack names
+### auth.py
+
+Creates authenticated API clients.
+
+| Function | Description |
+|----------|-------------|
+| `get_client()` | Returns client for org-level operations |
+| `get_group_client(group_id)` | Returns client scoped to a worker group |
+
+### worker_groups.py
+
+Worker group CRUD operations with support for on-prem and cloud worker groups.
+
+| Function | Description |
+|----------|-------------|
+| `create_worker_group(...)` | Create a worker group (on-prem or cloud) |
+| `create_onprem_worker_group(group_id, name)` | Create an on-prem worker group |
+| `create_cloud_worker_group(group_id, name, provider, region)` | Create a cloud worker group |
+| `list_worker_groups()` | List all worker groups |
+| `get_worker_group(group_id)` | Get a specific worker group |
+| `delete_worker_group(group_id)` | Delete a worker group |
+
+**On-prem vs Cloud Worker Groups:**
+
+```python
+from worker_groups import create_onprem_worker_group, create_cloud_worker_group
+
+# On-prem: You manage the workers
+create_onprem_worker_group(
+    group_id="datacenter-wg",
+    name="Datacenter Workers"
+)
+
+# Cloud: Cribl manages the workers
+create_cloud_worker_group(
+    group_id="aws-prod",
+    name="AWS Production",
+    cloud_provider="aws",      # "aws" or "azure"
+    cloud_region="us-east-1",
+    ingest_rate_mb=24          # 12, 24, 36, 48, 60, 84, 120, 156, 180
+)
+```
+
+### packs.py
+
+Pack CRUD operations (requires group context).
+
+| Function | Description |
+|----------|-------------|
+| `install_pack(group_id, source, pack_id)` | Install a pack |
+| `list_packs(group_id)` | List packs in a group |
+| `get_pack(group_id, pack_id)` | Get pack details |
+| `delete_pack(group_id, pack_id)` | Uninstall a pack |
+
+## Pack Sources
+
+Packs can be installed from:
+
+**GitHub:**
+```
+git+https://github.com/criblpacks/cribl-aws-vpcflow-logs.git
+```
+
+**Pack Dispensary:**
+```
+https://packs.cribl.io/dl/cribl-aws-bedrock-io/2.0.0/cribl-aws-bedrock-io-2.0.0.crbl
+```
+
+Browse available packs at [packs.cribl.io](https://packs.cribl.io)
+
+## Troubleshooting
+
+### "Missing required environment variables"
+
+Ensure your `.env` file has the required credentials:
+- `CRIBL_CLIENT_ID`
+- `CRIBL_CLIENT_SECRET`
+- `CRIBL_ORGANIZATION_ID`
+
+### "Unexpected status code 400 from token endpoint"
+
+Check that you're using the correct domain:
+- Production: `CRIBL_DOMAIN=cribl.cloud`
+- Staging: `CRIBL_DOMAIN=cribl-staging.cloud`
+
+### "name attribute must be unique"
+
+The worker group already exists. Either:
+- Use a different `WORKER_GROUP_ID`
+- Delete the existing group first
+
+### Connection timeout
+
+Verify the API URL format is correct:
+- Should be: `https://{workspace}-{org-id}.{domain}/api/v1`
+- Check `CRIBL_WORKSPACE` and `CRIBL_ORGANIZATION_ID`
 
 ## Resources
 

@@ -1,6 +1,6 @@
 # Cribl as Code Quickstart
 
-A simple, opinionated starting point for Cribl.Cloud admins and platform teams who want to manage Stream as code instead of living in ClickOps. In under 30 minutes, you’ll deploy a Worker Group and install a Pack using Terraform or the Python SDK, and have a clean pattern you can extend in your own Git repos.
+A simple, opinionated starting point for Cribl.Cloud admins and platform teams who want to manage Stream as code instead of living in ClickOps. In under 30 minutes, you'll deploy a Worker Group and install a Pack using Terraform or the Python SDK, and have a clean pattern you can extend in your own Git repos.
 
 ## What This Repo Is For
 
@@ -12,14 +12,15 @@ If you're a Cribl.Cloud administrator stuck in ClickOps or struggling with undoc
 
 ## Why GitOps with Cribl
 
-Treating your Cribl configuration like application code means every change is version‑controlled, reviewable, and repeatable. Git + Terraform gives you a single place to propose, review, and approve changes to Worker Groups and Packs, instead of relying on one‑off UI edits or undocumented scripts. Over time, this makes Day 2 operations like onboarding new sources, rolling out new Packs, tightening change control a <i>lot</i> less fragile.
+Treating your Cribl configuration like application code means every change is version-controlled, reviewable, and repeatable. Git + Terraform gives you a single place to propose, review, and approve changes to Worker Groups and Packs, instead of relying on one-off UI edits or undocumented scripts. Over time, this makes Day 2 operations like onboarding new sources, rolling out new Packs, and tightening change control a lot less fragile.
 
 ## What You Get
 
 After running either the Terraform or Python quickstart, you'll have a baseline Cribl as Code deployment with:
 
 - A new Worker Group in your Cribl.Cloud organization
-- The [AWS VPC Flow Logs Pack](https://packs.cribl.io/packs/aws-vpcflow-logs) installed and ready to configure
+- A Pack installed and ready to configure
+- Automated commit and deploy workflow
 
 ## Prerequisites
 
@@ -40,8 +41,8 @@ Use this path if your team already manages infra with Terraform and you want Cri
 
 ```bash
 # Clone the repo
-git clone https://github.com/your-org/cribl-as-code-quickstart.git
-cd cribl-as-code-quickstart/terraform
+git clone https://github.com/criblio/criblascode-quickstart.git
+cd criblascode-quickstart/terraform/examples/install-packs
 
 # Configure your credentials
 cp terraform.tfvars.example terraform.tfvars
@@ -53,16 +54,20 @@ terraform plan
 terraform apply
 ```
 
-After `terraform apply` completes, you'll see output confirming your Worker Group and pack installation.
+After `terraform apply` completes, your packs are installed and the configuration is automatically committed and deployed to your workers.
 
 ## Run the Python SDK Quickstart
 
-Use this path if you prefer a lightweight script or are exploring what’s possible with the Cribl SDK before standardizing on Terraform.
+Use this path if you prefer a lightweight script or are exploring what's possible with the Cribl SDK before standardizing on Terraform.
 
 ```bash
 # Clone the repo
-git clone https://github.com/your-org/cribl-as-code-quickstart.git
-cd cribl-as-code-quickstart/sdk/python
+git clone https://github.com/criblio/criblascode-quickstart.git
+cd criblascode-quickstart/sdk/python
+
+# Create a virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -72,29 +77,34 @@ cp .env.example .env
 # Edit .env with your Cribl.Cloud credentials
 
 # Run the script
-python create_wg_with_Pack.py
+python create_wg_with_pack.py
 ```
 
 ## Repo Structure
 
 ```
-cribl-as-code-quickstart/
+criblascode-quickstart/
 ├── README.md                           # This file
 ├── terraform/
 │   ├── README.md                       # Terraform-specific documentation
-│   ├── provider.tf                     # Provider configuration
-│   ├── main.tf                         # Worker group and Pack resources
-│   ├── variables.tf                    # Input variables
-│   ├── outputs.tf                      # Output values
-│   ├── terraform.tfvars.example        # Example variable values
 │   └── examples/
-│       └── create-wg-with-Pack/        # Standalone example
+│       ├── install-packs/              # Quickstart: Install packs into existing worker groups
+│       │   ├── main.tf
+│       │   ├── variables.tf
+│       │   ├── provider.tf
+│       │   ├── commit_deploy.tf
+│       │   └── terraform.tfvars.example
+│       └── create-wg-with-pack/        # Create a new worker group + install pack
 └── sdk/
     └── python/
         ├── README.md                   # Python SDK documentation
-        ├── requirements.txt            # Python dependencies
-        ├── .env.example                # Example environment variables
-        └── create_wg_with_pack.py      # Main script
+        ├── config.py                   # Configuration module
+        ├── auth.py                     # Authentication module
+        ├── worker_groups.py            # Worker group operations
+        ├── packs.py                    # Pack operations
+        ├── create_wg_with_pack.py      # Main quickstart script
+        ├── requirements.txt
+        └── .env.example
 ```
 
 ## Configuration Options
@@ -114,14 +124,24 @@ cribl-as-code-quickstart/
 | `pack_id` | Pack identifier | `cribl-aws-vpcflow-logs` |
 | `pack_source` | Pack Source URL | GitHub URL for AWS VPC Flow Logs |
 
+## Examples
+
+This repo includes standalone examples you can use as templates:
+
+| Example | Description |
+|---------|-------------|
+| [create-wg-with-pack](terraform/examples/create-wg-with-pack/) | Create a new worker group and install a pack |
+| [install-packs](terraform/examples/install-packs/) | Install packs into an existing worker group |
+
 ## Next Steps
 
-After you’ve deployed your Worker Group with the quickstart:
+After you've deployed your Worker Group with the quickstart:
 
-1. **Configure the Pack** - Set up Sources and Destinations for VPC Flow Logs processing
+1. **Configure the Pack** - Set up Sources and Destinations for data processing
 2. **Deploy Workers** - Add Worker Nodes to your new group
 3. **Add more Packs** - Browse the [Pack Dispensary](https://packs.cribl.io) for additional functionality
 4. **Extend your IaC** - Add pipelines, routes, and other configurations
+5. **Set up CI/CD** - Automate deployments with GitHub Actions or your preferred CI system
 
 ## Resources
 
@@ -150,6 +170,48 @@ After you’ve deployed your Worker Group with the quickstart:
 - Check that the Worker Group was created successfully
 - Review Cribl.Cloud logs for detailed error messages
 
-## License
+### Commit/Deploy Fails
 
-MIT License - See [LICENSE](LICENSE) for details.
+- Ensure the worker group exists and is accessible
+- Check that you have deploy permissions for the target group
+- Verify there are no conflicting pending changes in the UI
+
+## Security
+
+This repo includes automated security scanning to protect against accidental credential exposure:
+
+- **TruffleHog** - Scans for secrets and credentials
+- **Semgrep** - Static analysis for security vulnerabilities
+- **tfsec** - Terraform-specific security scanning
+
+### Running Security Scans Locally
+
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install hooks
+pre-commit install
+
+# Run all checks manually
+pre-commit run --all-files
+```
+
+### Important Security Notes
+
+- Never commit `.env`, `terraform.tfvars`, or files containing credentials
+- Use environment variables or gitignored files for secrets
+- Rotate credentials if accidentally exposed
+
+## Contributing
+
+Contributions are welcome! Please ensure your changes pass security scans:
+
+```bash
+# Install pre-commit hooks (runs security checks before each commit)
+pip install pre-commit
+pre-commit install
+
+# Run checks manually
+pre-commit run --all-files
+```

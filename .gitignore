@@ -1,5 +1,6 @@
 # Terraform
 .terraform/
+.terraform.lock.hcl
 *.tfstate
 *.tfstate.*
 *.tfvars
@@ -15,9 +16,17 @@ __pycache__/
 *.py[cod]
 *$py.class
 .env
+!.env.example
 .venv/
 venv/
 ENV/
+
+# Credentials & Secrets (never commit these)
+*.pem
+*.key
+*secret*
+*credential*
+!*example*
 
 # IDE
 .idea/
@@ -25,3 +34,6 @@ ENV/
 *.swp
 *.swo
 .DS_Store
+
+# Logs
+*.log
