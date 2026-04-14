@@ -42,7 +42,7 @@ Use this path if your team already manages infra with Terraform and you want Cri
 ```bash
 # Clone the repo
 git clone https://github.com/criblio/criblascode-quickstart.git
-cd criblascode-quickstart/terraform
+cd criblascode-quickstart/terraform/examples/install-packs
 
 # Configure your credentials
 cp terraform.tfvars.example terraform.tfvars
@@ -54,7 +54,7 @@ terraform plan
 terraform apply
 ```
 
-After `terraform apply` completes, you'll see output confirming your Worker Group and pack installation. The configuration is automatically committed and deployed to your workers.
+After `terraform apply` completes, your packs are installed and the configuration is automatically committed and deployed to your workers.
 
 ## Run the Python SDK Quickstart
 
@@ -87,21 +87,24 @@ criblascode-quickstart/
 ├── README.md                           # This file
 ├── terraform/
 │   ├── README.md                       # Terraform-specific documentation
-│   ├── provider.tf                     # Provider configuration
-│   ├── main.tf                         # Worker group and Pack resources
-│   ├── variables.tf                    # Input variables
-│   ├── outputs.tf                      # Output values
-│   ├── commit_deploy.tf                # Commit and deploy workflow
-│   ├── terraform.tfvars.example        # Example variable values
 │   └── examples/
-│       ├── create-wg-with-pack/        # Create a new worker group + install pack
-│       └── install-packs/              # Install packs into existing worker groups
+│       ├── install-packs/              # Quickstart: Install packs into existing worker groups
+│       │   ├── main.tf
+│       │   ├── variables.tf
+│       │   ├── provider.tf
+│       │   ├── commit_deploy.tf
+│       │   └── terraform.tfvars.example
+│       └── create-wg-with-pack/        # Create a new worker group + install pack
 └── sdk/
     └── python/
         ├── README.md                   # Python SDK documentation
-        ├── requirements.txt            # Python dependencies
-        ├── .env.example                # Example environment variables
-        └── create_wg_with_pack.py      # Main script
+        ├── config.py                   # Configuration module
+        ├── auth.py                     # Authentication module
+        ├── worker_groups.py            # Worker group operations
+        ├── packs.py                    # Pack operations
+        ├── create_wg_with_pack.py      # Main quickstart script
+        ├── requirements.txt
+        └── .env.example
 ```
 
 ## Configuration Options

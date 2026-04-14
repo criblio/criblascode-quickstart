@@ -48,7 +48,7 @@ Most users use `main` as their workspace. It's visible in the URL:
 ## Terraform Quickstart
 
 ```bash
-cd terraform
+cd terraform/examples/install-packs
 cp terraform.tfvars.example terraform.tfvars
 # User edits terraform.tfvars with credentials
 terraform init
@@ -58,8 +58,9 @@ terraform apply
 
 Key files:
 - `terraform.tfvars` - User credentials (gitignored)
-- `main.tf` - Resource definitions
+- `main.tf` - Pack installation resources
 - `commit_deploy.tf` - Handles commit and deploy workflow
+- `variables.tf` - Input variables including worker_group_name
 
 ## Python SDK Quickstart
 
@@ -217,14 +218,15 @@ criblascode-quickstart/
 ├── CLAUDE.md                    # This file
 ├── README.md                    # Main documentation
 ├── terraform/
-│   ├── main.tf                  # Pack resources
-│   ├── variables.tf             # Input variables
-│   ├── provider.tf              # Cribl provider config
-│   ├── commit_deploy.tf         # Commit/deploy workflow
-│   ├── terraform.tfvars.example
+│   ├── README.md                # Terraform documentation
 │   └── examples/
-│       ├── create-wg-with-pack/
-│       └── install-packs/
+│       ├── install-packs/       # Quickstart (default)
+│       │   ├── main.tf
+│       │   ├── variables.tf
+│       │   ├── provider.tf
+│       │   ├── commit_deploy.tf
+│       │   └── terraform.tfvars.example
+│       └── create-wg-with-pack/ # Create new worker group
 └── sdk/
     └── python/
         ├── config.py            # Configuration loader
