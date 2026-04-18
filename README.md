@@ -24,7 +24,7 @@ After running either the Terraform or Python quickstart, you'll have a baseline 
 
 ## Prerequisites
 
-- **Cribl.Cloud account** with API credentials ([how to create API credentials](https://docs.cribl.io/stream/api-setup/))
+- **Cribl.Cloud account** with API credentials ([how to create API credentials](https://docs.cribl.io/cribl-as-code/api-auth/))
 - **Terraform 1.x** (for Terraform quickstart)
 - **Python 3.9+** (for Python quickstart)
 
